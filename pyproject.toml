@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "virtual_asic_miner"
+version = "0.1.0"
+description = "Virtual ASIC miner simulator with a lightweight HTTP API"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "WillItMod (Johnny Murray)" }]
+dependencies = []
+
+[project.optional-dependencies]
+api = ["flask>=3.0"]
+
+[project.scripts]
+virtual-asic-miner = "virtual_asic_miner.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
