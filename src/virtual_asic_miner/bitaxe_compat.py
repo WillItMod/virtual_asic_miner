@@ -30,6 +30,7 @@ def build_system_info(*, miner: VirtualMiner, ipv4: Optional[str] = None) -> Dic
     # so avoid keys that differ only by case.
     asic_model = str(tel.get("ASICModel") or "")
     small_core_count = int(miner.model.small_core_count)
+    asic_count = int(miner.model.asic_count)
 
     chip_temp = float(tel.get("temp") or 0.0)
     vr_temp = int(round(float(tel.get("vrTemp") or 0.0)))
@@ -68,6 +69,8 @@ def build_system_info(*, miner: VirtualMiner, ipv4: Optional[str] = None) -> Dic
 
     return {
         "ASICModel": asic_model,
+        # Some consumers look for the lowercase variant.
+        "asicModel": asic_model,
         "apEnabled": 0,
         "autofanspeed": int(1 if autofan else 0),
         "axeOSVersion": "virtual",
@@ -124,6 +127,8 @@ def build_system_info(*, miner: VirtualMiner, ipv4: Optional[str] = None) -> Dic
         "sharesAccepted": int(tel.get("sharesAccepted") or 0),
         "sharesRejected": int(tel.get("sharesRejected") or 0),
         "sharesRejectedReasons": {},
+        # AxeBench device detection uses this to determine chip count.
+        "asicCount": asic_count,
         "smallCoreCount": small_core_count,
         "ssid": "virtual",
         "statsFrequency": frequency,
