@@ -15,6 +15,41 @@ def _stable_mac(miner_id: str) -> str:
     return ":".join(f"{x:02x}" for x in b)
 
 
+def _device_label(*, miner: VirtualMiner) -> str:
+    asic_model = str(miner.model.asic_model or "").upper()
+    asic_count = int(miner.model.asic_count)
+    input_v = float(miner.model.input_voltage_v)
+
+    if asic_model == "BM1370":
+        if asic_count >= 8:
+            return "nerdoctaxe"
+        if asic_count >= 4:
+            return "nerdqaxe_pp"
+        if asic_count >= 2:
+            return "nerdqaxe_plus"
+        # Single-chip BM1370 can represent Gamma (5V) or NerdQAxe (12V).
+        return "gamma" if input_v <= 6.0 else "nerdqaxe"
+
+    if asic_model == "BM1368":
+        if asic_count >= 6:
+            return "suprahex"
+        if asic_count >= 4:
+            return "supraquad"
+        return "supra"
+
+    if asic_model == "BM1366":
+        if asic_count >= 6:
+            return "hex"
+        if asic_count >= 4:
+            return "ultraquad"
+        return "ultra"
+
+    if asic_model == "BM1397":
+        return "max"
+
+    return f"{asic_model.lower() or 'asic'}x{asic_count}"
+
+
 def build_system_info(*, miner: VirtualMiner, ipv4: Optional[str] = None) -> Dict[str, Any]:
     """
     Return a Bitaxe-style `/api/system/info` payload.
@@ -31,6 +66,7 @@ def build_system_info(*, miner: VirtualMiner, ipv4: Optional[str] = None) -> Dic
     asic_model = str(tel.get("ASICModel") or "")
     small_core_count = int(miner.model.small_core_count)
     asic_count = int(miner.model.asic_count)
+    device_label = _device_label(miner=miner)
 
     chip_temp = float(tel.get("temp") or 0.0)
     vr_temp = int(round(float(tel.get("vrTemp") or 0.0)))
@@ -67,6 +103,9 @@ def build_system_info(*, miner: VirtualMiner, ipv4: Optional[str] = None) -> Dic
     fallback_user = str(tel.get("fallbackStratumUser") or "")
     is_using_fallback = int(1 if tel.get("isUsingFallbackStratum") else 0)
 
+    # AxeBench uses `hostname` as the suggested device name during discovery.
+    hostname = f"{device_label}-{miner.miner_id}"
+
     return {
         "ASICModel": asic_model,
         # Some consumers look for the lowercase variant.
@@ -80,7 +119,8 @@ def build_system_info(*, miner: VirtualMiner, ipv4: Optional[str] = None) -> Dic
         "blockHeight": 0,
         # Some consumers (e.g. AxeBench device detection) call `.lower()` on this value.
         # Real devices often report it as a string; keep it string-typed to avoid crashes.
-        "boardVersion": "0",
+        # Also avoid boardVersion values that map to specific real devices (e.g. 601/602).
+        "boardVersion": f"virtual-{device_label}",
         "coreVoltage": core_v,
         "coreVoltageActual": core_v_act,
         "current": current_ma,
@@ -102,7 +142,7 @@ def build_system_info(*, miner: VirtualMiner, ipv4: Optional[str] = None) -> Dic
         "frequency": frequency,
         "hashRate": hashrate,
         "hashrateMonitor": 0,
-        "hostname": miner.miner_id,
+        "hostname": hostname,
         "idfVersion": "virtual",
         "invertscreen": 0,
         "ipv4": ipv4 or "0.0.0.0",
@@ -110,6 +150,7 @@ def build_system_info(*, miner: VirtualMiner, ipv4: Optional[str] = None) -> Dic
         "isPSRAMAvailable": 0,
         "isUsingFallbackStratum": is_using_fallback,
         "macAddr": _stable_mac(miner.miner_id),
+        "modelId": str(miner.model.model_id),
         "manualFanSpeed": int(tel.get("manualFanSpeed") or int(round(fanspeed))),
         "maxPower": 0,
         "minFanSpeed": int(tel.get("minFanSpeed") or miner.model.min_fan_pct),
