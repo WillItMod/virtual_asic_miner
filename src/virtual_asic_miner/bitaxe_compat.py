@@ -75,7 +75,9 @@ def build_system_info(*, miner: VirtualMiner, ipv4: Optional[str] = None) -> Dic
         "bestSessionDiff": best_session_diff,
         "blockFound": 0,
         "blockHeight": 0,
-        "boardVersion": 0,
+        # Some consumers (e.g. AxeBench device detection) call `.lower()` on this value.
+        # Real devices often report it as a string; keep it string-typed to avoid crashes.
+        "boardVersion": "0",
         "coreVoltage": core_v,
         "coreVoltageActual": core_v_act,
         "current": current_ma,
@@ -140,4 +142,3 @@ def build_system_info(*, miner: VirtualMiner, ipv4: Optional[str] = None) -> Dic
         "wifiRSSI": wifi_rssi,
         "wifiStatus": 3,
     }
-
