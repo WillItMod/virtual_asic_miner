@@ -8,6 +8,7 @@ from werkzeug.serving import make_server
 
 from .sim import VirtualMiner
 from .bitaxe_compat import build_system_info
+from .cors import enable_cors
 
 
 @dataclass
@@ -34,6 +35,7 @@ class PublishedMinerServer:
 
 def create_compat_app(miner: VirtualMiner) -> Flask:
     app = Flask(__name__)
+    enable_cors(app)
 
     @app.get("/healthz")
     def healthz():

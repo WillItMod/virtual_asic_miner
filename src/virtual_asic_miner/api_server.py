@@ -12,6 +12,7 @@ from flask import send_from_directory
 from .models import MODEL_PRESETS, SCENARIOS, get_model, get_scenario
 from .sim import MinerFleet, VirtualMiner
 from .bitaxe_compat import build_system_info
+from .cors import enable_cors
 
 
 def _json_error(code: str, message: str, status: int = 400, details: Dict[str, Any] | None = None):
@@ -33,6 +34,7 @@ def create_app(
     unpublish_miner: Callable[[str], None] | None = None,
 ) -> Flask:
     app = Flask(__name__)
+    enable_cors(app)
 
     def get_or_404(miner_id: str) -> VirtualMiner:
         miner = fleet.get(miner_id)
