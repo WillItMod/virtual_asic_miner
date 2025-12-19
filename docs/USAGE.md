@@ -47,6 +47,20 @@ Example:
 - Miner 2: `http://<host>:8092/api/system/info`
 - Miner 3: `http://<host>:8093/api/system/info`
 
+## AxeBench compatibility (AxeBench/AxeLive)
+
+AxeBench’s “Detect” flow expects a Bitaxe/AxeOS-style payload at:
+- `GET http://<ip_or_ip:port>/api/system/info`
+
+Important fields:
+- `asicCount`: used to determine chip count (otherwise AxeBench may assume 1)
+- `boardVersion`: some AxeBench versions call `.lower()` on this value during detection, so it must be a string
+- `hostname`: AxeBench uses this as the suggested device name
+
+Browser access (CORS):
+- AxeBench can make browser-side requests directly to the miner IP/port; those calls require permissive CORS headers.
+- This project adds `Access-Control-Allow-Origin: *` (and related headers) on the compatibility endpoints so detection works from the AxeBench UI.
+
 ## Mixed system voltages (5V and 12V)
 
 Model presets include both 5V-rail and 12V-rail variants. To mix them in a fleet, cycle models:
@@ -104,4 +118,3 @@ npm run dev
 ```
 
 Open: `http://127.0.0.1:5173/`
-

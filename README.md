@@ -11,6 +11,12 @@ Goals:
 
 - `docs/USAGE.md`
 
+## AxeBench compatibility
+
+If you use AxeBench/AxeLive and want each simulated miner to be discoverable as a device (`/api/system/*` on per-miner ports):
+- enable `--publish-miners`
+- use `docs/USAGE.md` → “AxeBench compatibility” for required fields and troubleshooting
+
 ## Quick start (Windows)
 
 1) Create a venv and install:
