@@ -49,7 +49,7 @@ Example:
 
 ## AxeBench compatibility (AxeBench/AxeLive)
 
-AxeBench’s “Detect” flow expects a Bitaxe/AxeOS-style payload at:
+AxeBench's "Detect" flow expects a Bitaxe/AxeOS-style payload at:
 - `GET http://<ip_or_ip:port>/api/system/info`
 
 Important fields:
